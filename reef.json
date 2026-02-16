@@ -1,0 +1,155 @@
+{
+  "reef": "1.0",
+  "type": "school",
+  "name": "reef-forge",
+  "version": "0.1.0",
+  "description": "6-agent formation that builds other formations. Architect coordinates research, SOUL writing, scaffolding, adversarial QA, and ecosystem issue filing to produce world-class OpenReef formations.",
+  "author": "OpenReef",
+  "license": "MIT",
+  "repository": "https://github.com/openreefai/reef-forge",
+  "namespace": "reef-forge",
+  "compatibility": {
+    "openclaw": ">=0.5.0"
+  },
+  "variables": {
+    "INTERACTION_CHANNEL": {
+      "type": "string",
+      "description": "Primary contact channel in <type>:<scope> form (examples: slack:#ops, telegram:12345, teams:ops-room)",
+      "required": true,
+      "sensitive": false
+    },
+    "GITHUB_USERNAME": {
+      "type": "string",
+      "description": "Your GitHub username, used for repository references and issue filing",
+      "required": true,
+      "sensitive": false
+    },
+    "OPENREEF_REPO_URL": {
+      "type": "string",
+      "description": "URL of the openreef repository for Researcher/QA to clone",
+      "default": "https://github.com/openreefai/openreef",
+      "required": false,
+      "sensitive": false
+    },
+    "TIDE_REPO_URL": {
+      "type": "string",
+      "description": "URL of the tide registry repository for Researcher/QA to clone",
+      "default": "https://github.com/openreefai/tide",
+      "required": false,
+      "sensitive": false
+    },
+    "OPENCLAW_REPO_URL": {
+      "type": "string",
+      "description": "URL of the openclaw runtime repository for Researcher/QA to clone",
+      "default": "https://github.com/openclaw/openclaw",
+      "required": false,
+      "sensitive": false
+    },
+    "MAX_QA_ROUNDS": {
+      "type": "number",
+      "description": "Maximum adversarial QA rounds before escalating unresolved disputes to user",
+      "default": 4,
+      "required": false,
+      "sensitive": false
+    }
+  },
+  "agents": {
+    "architect": {
+      "source": "agents/architect",
+      "description": "Single point of contact. Decomposes formation requests, defines specs and acceptance criteria, routes work to specialists, mediates QA disputes, escalates to user after adversarial rounds.",
+      "role": "coordinator",
+      "model": "anthropic/claude-opus-4-6",
+      "tools": { "allow": ["web-search", "file-read", "file-write"] },
+      "sandbox": { "network": true, "filesystem": "restricted" }
+    },
+    "researcher": {
+      "source": "agents/researcher",
+      "description": "Deep domain research before building begins. Clones openreef, tide, and openclaw repos (read-only). Browses ClawHub for existing skills. Produces structured briefs.",
+      "role": "researcher",
+      "model": "anthropic/claude-opus-4-6",
+      "tools": { "allow": ["web-search", "file-read", "git-clone"] },
+      "sandbox": { "network": true, "filesystem": "restricted" }
+    },
+    "soul-writer": {
+      "source": "agents/soul-writer",
+      "description": "Writes SOUL.md files with personality, behavior, tools, and communication sections. Writes IDENTITY.md. Authors knowledge/static reference material.",
+      "role": "writer",
+      "model": "anthropic/claude-opus-4-6",
+      "tools": { "allow": ["web-search", "file-read", "file-write"] },
+      "sandbox": { "network": true, "filesystem": "restricted" }
+    },
+    "builder": {
+      "source": "agents/builder",
+      "description": "Scaffolds complete formation file trees. Writes reef.json, README, .env.example, .gitignore, reef.lock.json. Wires ClawHub skills into dependencies. Runs reef validate.",
+      "role": "builder",
+      "model": "anthropic/claude-opus-4-6",
+      "tools": { "allow": ["web-search", "file-read", "file-write", "shell"] },
+      "sandbox": { "network": true, "filesystem": "restricted" }
+    },
+    "qa": {
+      "source": "agents/qa",
+      "description": "Adversarial reviewer using a different vendor model. Reviews formations against quality checklist. Audits ecosystem repos read-only. Cites specific failures. Escalates unresolved disputes after max rounds.",
+      "role": "reviewer",
+      "model": "openai/gpt-5.3-codex",
+      "tools": { "allow": ["web-search", "file-read", "git-clone"] },
+      "sandbox": { "network": true, "filesystem": "restricted" }
+    },
+    "issue-filer": {
+      "source": "agents/issue-filer",
+      "description": "Takes QA ecosystem findings about openreef/tide/openclaw. Checks existing GH issues for duplicates. Drafts issues for user review. Never files autonomously.",
+      "role": "reporter",
+      "model": "anthropic/claude-haiku-4-5",
+      "tools": { "allow": ["file-read", "file-write"] },
+      "sandbox": { "network": true, "filesystem": "restricted" }
+    }
+  },
+  "agentToAgent": {
+    "architect": ["researcher", "soul-writer", "builder", "qa", "issue-filer"],
+    "researcher": ["architect"],
+    "soul-writer": ["architect", "builder"],
+    "builder": ["architect", "qa"],
+    "qa": ["architect", "builder", "soul-writer", "researcher"],
+    "issue-filer": ["architect"]
+  },
+  "bindings": [
+    { "channel": "{{INTERACTION_CHANNEL}}", "agent": "architect" }
+  ],
+  "dependencies": {
+    "services": [
+      {
+        "name": "Anthropic API",
+        "url": "https://console.anthropic.com",
+        "required": true,
+        "description": "LLM provider for Architect, Researcher, Soul Writer, and Builder (Opus); Issue Filer (Haiku)"
+      },
+      {
+        "name": "OpenAI API",
+        "url": "https://platform.openai.com",
+        "required": true,
+        "description": "LLM provider for QA agent (gpt-5.3-codex)"
+      },
+      {
+        "name": "GitHub API",
+        "url": "https://github.com/settings/tokens",
+        "required": true,
+        "description": "Repo cloning for Researcher and QA, issue drafting for Issue Filer"
+      },
+      {
+        "name": "ClawHub",
+        "url": "https://clawhub.dev",
+        "required": false,
+        "description": "Skill discovery for Researcher, skill wiring for Builder"
+      }
+    ]
+  },
+  "validation": {
+    "agent_exists": true,
+    "file_exists": true,
+    "binding_active": true,
+    "cron_exists": false,
+    "agent_responds": {
+      "enabled": false,
+      "timeout": 30
+    }
+  }
+}
