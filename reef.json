@@ -2,7 +2,7 @@
   "reef": "1.0",
   "type": "shoal",
   "name": "reef-forge",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "5-agent formation that builds other formations. Architect coordinates research, SOUL writing, scaffolding, and adversarial QA to produce world-class OpenReef formations.",
   "author": "OpenReef",
   "license": "MIT",
@@ -84,7 +84,7 @@
       "source": "agents/qa",
       "description": "Adversarial reviewer using a different vendor model. Reviews formations against quality checklist. Audits ecosystem repos read-only. Cites specific failures. Escalates unresolved disputes after max rounds.",
       "role": "reviewer",
-      "model": "openai/gpt-5.3-codex",
+      "model": "openai/gpt-5.2",
       "tools": { "allow": ["web_search", "read", "exec", "sessions_send"] },
       "sandbox": { "network": true, "filesystem": "restricted" }
     }
@@ -111,7 +111,7 @@
         "name": "OpenAI API",
         "url": "https://platform.openai.com",
         "required": true,
-        "description": "LLM provider for QA agent (gpt-5.3-codex)"
+        "description": "LLM provider for QA agent (gpt-5.2)"
       },
       {
         "name": "GitHub API",
