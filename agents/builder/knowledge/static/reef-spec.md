@@ -120,7 +120,7 @@ Each agent is keyed by its slug (lowercase, hyphenated). The slug is used in `ag
     "role": "coordinator",
     "model": "anthropic/claude-opus-4-6",
     "tools": {
-      "allow": ["web-search", "file-read", "file-write"]
+      "allow": ["web_search", "read", "write", "sessions_send", "sessions_history"]
     },
     "sandbox": {
       "network": true,
@@ -171,6 +171,8 @@ Directed adjacency list defining which agents can send messages to which other a
 - No self-loops. An agent cannot list itself as a target.
 - Edges are directional. If A can message B, that does not mean B can message A. Add both directions explicitly if needed.
 - Agents not listed as keys cannot initiate messages to other agents (they can still receive).
+- **Every agent that appears as a key in `agentToAgent` (i.e., sends messages) MUST have `sessions_send` in its `tools.allow`.** Without it, the agent cannot actually send messages at runtime — the topology declaration is inert.
+- **Every agent SHOULD have `sessions_history` in its `tools.allow`.** This lets agents recover context after session resets by reading back prior conversation transcripts. Without it, a session reset wipes all working memory.
 - Common patterns:
   - **Hub-and-spoke:** One coordinator connects to all specialists. Each specialist connects only to the coordinator.
   - **Pipeline:** A -> B -> C -> D. Each agent connects to the next in sequence.
@@ -184,8 +186,8 @@ Channel routing rules that connect external communication channels to agents.
 
 ```json
 "bindings": [
-  { "channel": "{{INTERACTION_CHANNEL}}", "agent": "architect" },
-  { "channel": "email:inbox", "agent": "inbox-manager" }
+  { "match": { "channel": "{{INTERACTION_CHANNEL}}" }, "agent": "architect" },
+  { "match": { "channel": "email", "peer": { "kind": "channel", "id": "inbox" } }, "agent": "inbox-manager" }
 ]
 ```
 
@@ -193,12 +195,20 @@ Channel routing rules that connect external communication channels to agents.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `channel` | string | yes | Channel identifier. Either a hardcoded functional channel or a `{{VARIABLE}}` reference. |
+| `match` | object | yes | Match object with routing fields. Must contain at least `channel`. |
+| `match.channel` | string | yes | Channel token (e.g. `slack`, `telegram`, `discord`, `email`) or `{{VARIABLE}}` reference. |
+| `match.peer` | object | no | Peer targeting with `kind` and `id`. Both fields required if peer is present. |
+| `match.accountId` | string | no | Specific account ID for multi-account routing. |
+| `match.guildId` | string | no | Discord guild ID. |
+| `match.teamId` | string | no | Slack team ID. |
+| `match.roles` | array | no | Discord roles (any matching role satisfies — overlap semantics). |
 | `agent` | string | yes | Agent slug to bind. Must exist in the `agents` object. |
 
 ### Channel Format Convention
 
-Bindings use match objects with a required `channel` token and optional peer targeting:
+Every binding uses a `match` object. The old flat `{ "channel": "...", "agent": "..." }` format is invalid. Always use `{ "match": { "channel": "..." }, "agent": "..." }`.
+
+Match objects support a required `channel` token and optional peer targeting:
 
 - **channel** -- The platform token: `slack`, `telegram`, `teams`, `discord`
 - **peer.kind** -- Target type: `direct`, `group`, `channel`
@@ -348,6 +358,19 @@ Post-deploy health check configuration. Controls what `reef validate` checks aft
 - Always set `agent_exists`, `file_exists`, and `binding_active` to `true`. These are the baseline checks.
 - Set `cron_exists` to `true` if the formation has any cron jobs. Set to `false` if there are no cron entries.
 - Leave `agent_responds.enabled` as `false` for most formations. It is a heavyweight check that requires all agents to be fully operational. Enable it only when requested or for production-critical formations.
+
+---
+
+## SOUL.md Requirements for Runtime Resilience
+
+Every agent's SOUL.md MUST include guidance for session recovery and state persistence. OpenClaw resets sessions daily and after idle timeouts. Without these, agents lose all working memory on reset.
+
+### Required SOUL.md Additions
+
+1. **Session History section** — Tell the agent it has `sessions_history` and when to use it (recovering context after a reset, not routinely).
+2. **State Persistence section** — Define 1-3 files in `knowledge/dynamic/` where the agent writes its working state. Specify what each file contains, when to write it, and when to clear it. The agent reads these on session start to resume work.
+
+These sections prevent the most common formation failure mode: agents that work fine initially but lose all context on the first session reset, becoming unable to resume work or communicate with other agents.
 
 ---
 

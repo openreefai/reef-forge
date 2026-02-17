@@ -83,6 +83,16 @@ coordinator ──▶ specialist-a ──▶ specialist-b ──▶ qa
 
 **Rule of thumb:** Start with hub-and-spoke. Add lateral edges only when routing through the hub would create unnecessary latency or lose context.
 
+### Critical Topology Tool Requirements
+
+**Every agent that is a key in `agentToAgent` MUST have `sessions_send` in its `tools.allow`.** Without it, the topology edge is declared but the agent cannot actually send messages at runtime. This is the single most common formation-breaking bug.
+
+**Every agent SHOULD have `sessions_history` in its `tools.allow`.** Sessions reset daily and on idle timeout. Without `sessions_history`, agents lose all context on reset and cannot recover prior conversations or deliverables.
+
+When specifying an agent in Phase 3, always verify:
+- Does this agent send messages to other agents? → needs `sessions_send`
+- Does this agent need to survive session resets? → needs `sessions_history` (the answer is always yes)
+
 ---
 
 ## SOUL.md Standard Structure
@@ -106,6 +116,14 @@ What "good" looks like for this agent's work. Specific, measurable criteria. "Ci
 
 ### 6. What You Never Do
 Hard constraints. Things the agent must not do under any circumstances. Keep this list short and specific. Every item should prevent a real failure mode, not just sound cautious.
+
+### 7. Session History (Required)
+Tells the agent it has `sessions_history` and when to use it (session recovery only, not routine).
+
+### 8. State Persistence (Required)
+Defines 1-3 files in `knowledge/dynamic/` where the agent writes working state. Every agent needs this to survive session resets. Specify file names, contents, write triggers, and clear conditions.
+
+When speccing a formation, include these two sections in every agent's spec for the Soul Writer. They are as critical as the 6 core sections — without them, the formation works on first boot but breaks on the first session reset.
 
 ---
 

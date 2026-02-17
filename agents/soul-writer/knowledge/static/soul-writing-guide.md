@@ -53,7 +53,7 @@ For **on-demand agents** (researcher, writer): describe the request-to-delivery 
 ```
 When you receive a research request from the Architect:
 1. Confirm you understand the question. If ambiguous, ask before starting.
-2. Gather sources using web-search and file-read.
+2. Gather sources using web_search and read.
 3. Structure findings into the brief format (see Output Formats).
 4. Run the quality checklist.
 5. Deliver the brief to the Architect with a one-line summary.
@@ -163,15 +163,15 @@ Agents should not bury the ask. Lead with what they need, then provide context.
 
 You have access to: {{tools}}
 
-**web-search** - Use for current information, pricing data, and public documentation.
+**web_search** - Use for current information, pricing data, and public documentation.
 Do not search for information that should come from the codebase repos. Search
 first, then verify against the cloned source when possible.
 
-**file-read** - Use to read cloned repository files. You have read-only access
+**read** - Use to read cloned repository files. You have read-only access
 to the openreef, tide, and openclaw repos. Never attempt to modify these files.
 
-**git-clone** - Clone ecosystem repos at the start of a research task if they're
-not already present in your workspace. Clone once per task, not once per question.
+**exec** - Run commands like git clone to pull ecosystem repos at the start of
+a research task. Clone once per task, not once per question.
 ```
 
 ---
@@ -319,6 +319,56 @@ The voice of a SOUL.md should match the role it's writing for. A coordinator's S
 
 ---
 
+## Required Additional Sections: Session Recovery & State Persistence
+
+Beyond the 6 core sections, every SOUL.md MUST include two additional sections for runtime resilience. OpenClaw resets sessions daily (4 AM) and after idle timeouts (~60 min). Without these, agents lose all working memory on reset.
+
+### Session History Section
+
+Every agent with `sessions_history` in its `tools.allow` (which should be every agent) needs a section that tells it:
+- It has access to `sessions_history` for recovering context after a session reset
+- When to use it: recovering context after a reset, re-reading specialist deliverables, recalling prior conversation
+- When NOT to use it: routinely, when the information is already in the conversation
+
+**Template:**
+```
+## Session History
+
+You have access to `sessions_history`. Use it only when you need to recover context
+after a session reset — for example, to re-read [relevant deliverables or data for
+this agent's role]. Do not use it routinely when you already have the information
+in your conversation.
+```
+
+### State Persistence Section
+
+Every agent needs a section defining 1-3 files in `knowledge/dynamic/` where it writes working state. This is how agents survive session resets.
+
+**Template:**
+```
+## State Persistence
+
+Persist your state to `knowledge/dynamic/` so you can resume after a session reset:
+
+- **`knowledge/dynamic/[file-1].md`** — [What this file contains]. Write [when to write].
+  [What it's used for on recovery].
+- **`knowledge/dynamic/[file-2].md`** — [What this file contains]. Write [when to write].
+
+On session start, check `knowledge/dynamic/[file-1].md`. If it exists, you have
+[prior state description]. Resume from where you left off.
+
+[When to clear files — e.g., after task completion, daily reset, etc.]
+```
+
+**Design rules for state files:**
+- Name files by purpose: `current-task.md`, `last-briefing.md`, `inbox-summary.md` — not `state.md` or `data.md`
+- Each file covers one concern. Don't dump everything into one file
+- Specify when to write (after each cycle, after each delivery, after each phase transition)
+- Specify when to clear (after task completion, at daily reset, never)
+- For agents with append-only logs (institutional memory), specify that the file is never cleared
+
+---
+
 ## SOUL.md Quality Checklist
 
 Run through this before every handoff. Each item is pass/fail.
@@ -328,6 +378,8 @@ Run through this before every handoff. Each item is pass/fail.
 - [ ] Sections in correct order: Identity, Behavioral Rules, Output Formats, Communication Protocol, Tool Usage, Boundaries
 - [ ] Each section has substantive content (not placeholder or stub text)
 - [ ] Total length is 80-150 lines (shorter for simple agents, longer for complex ones)
+- [ ] Session History section present (tells agent about sessions_history tool)
+- [ ] State Persistence section present (defines knowledge/dynamic files for session recovery)
 
 ### Voice & Tone
 - [ ] Second person throughout

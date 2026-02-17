@@ -2,7 +2,7 @@
   "reef": "1.0",
   "type": "shoal",
   "name": "reef-forge",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "5-agent formation that builds other formations. Architect coordinates research, SOUL writing, scaffolding, and adversarial QA to produce world-class OpenReef formations.",
   "author": "OpenReef",
   "license": "MIT",
@@ -53,7 +53,7 @@
       "description": "Single point of contact. Decomposes formation requests, defines specs and acceptance criteria, routes work to specialists, mediates QA disputes, escalates to user after adversarial rounds.",
       "role": "coordinator",
       "model": "anthropic/claude-opus-4-6",
-      "tools": { "allow": ["web_search", "web_fetch", "read", "write", "edit", "sessions_spawn", "sessions_send", "sessions_list", "sessions_history"] },
+      "tools": { "allow": ["web_search", "web_fetch", "read", "write", "edit", "apply_patch", "sessions_spawn", "sessions_send", "sessions_list", "sessions_history"] },
       "sandbox": { "network": true, "filesystem": "restricted" }
     },
     "researcher": {

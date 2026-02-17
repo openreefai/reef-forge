@@ -46,6 +46,8 @@ Set the `type` field to match. If the Architect's spec has 3 agents, the type is
 - If the spec calls for hub-and-spoke, the hub lists all spokes, and each spoke lists only the hub.
 - No self-loops. An agent cannot message itself.
 - If the spec does not define topology, infer it: coordinators connect to all others, specialists connect back to coordinators only.
+- **Every agent that is a key in `agentToAgent` MUST have `sessions_send` in its `tools.allow`.** This is not optional. Without it, the topology edge is declared but the agent cannot actually send messages at runtime. This is the most common formation-breaking bug.
+- **Every agent SHOULD have `sessions_history` in its `tools.allow`.** Sessions reset daily and on idle timeout. Without `sessions_history`, agents cannot recover context after a reset.
 
 **Variable declarations:**
 - Every `{{VARIABLE}}` used in bindings, SOUL.md templates, or cron prompts must be declared in `variables`.
@@ -57,7 +59,7 @@ Set the `type` field to match. If the Architect's spec has 3 agents, the type is
 
 Bindings route external channels to agents. Two categories:
 
-**Functional channels** are hardcoded strings. These are internal system channels that never change. Example: `{"channel": "email:inbox", "agent": "inbox-manager"}`.
+**Functional channels** are hardcoded match objects. These are internal system channels that never change. Example: `{"match": {"channel": "email", "peer": {"kind": "channel", "id": "inbox"}}, "agent": "inbox-manager"}`.
 
 **Interaction channels** use the `{{VARIABLE}}` pattern in a match object. These are user-configurable and must reference declared variables. The channel token identifies the platform (slack, telegram, teams, discord). Optional peer targeting uses separate `INTERACTION_PEER_KIND` and `INTERACTION_PEER_ID` variables. Example: `{"match": {"channel": "{{INTERACTION_CHANNEL}}"}, "agent": "architect"}`.
 

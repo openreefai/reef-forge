@@ -4,7 +4,7 @@ This is the authoritative checklist for QA review. Every item must be checked on
 
 ---
 
-## A. Manifest (reef.json) -- 14 items
+## A. Manifest (reef.json) -- 17 items
 
 | # | Item | PASS criteria | Evidence to cite |
 |---|------|---------------|------------------|
@@ -13,7 +13,7 @@ This is the authoritative checklist for QA review. Every item must be checked on
 | A-03 | Type correct for agent count | `solo`=1 agent, `shoal`=2-5 agents, `school`=6+ agents | Actual agent count vs. declared type |
 | A-04 | Topology valid | Every slug in `agentToAgent` values exists as a key in `agents` | Broken slug reference |
 | A-05 | Variable declarations complete | Every `{{VAR}}` used anywhere in the formation files is declared in `variables` | File path, line, and undeclared variable name |
-| A-06 | Bindings format correct | Each binding uses a match object with a `channel` token or `{{VARIABLE}}` interpolation | Malformed binding value |
+| A-06 | Bindings use match objects | Each binding uses `{ "match": { "channel": "..." }, "agent": "..." }` format. Old flat `{ "channel": "...", "agent": "..." }` format is a DEFECT. | Malformed binding |
 | A-07 | Cron expressions valid | Every `schedule` value is a valid 5-field cron expression | Invalid expression and what is wrong with it |
 | A-08 | Dependencies declared | Every external service the formation requires is listed in `dependencies.services` | Undeclared service (e.g., model provider not listed) |
 | A-09 | Validation config present | `validation` object exists with at least `agent_exists` and `file_exists` | Missing validation object or fields |
@@ -22,10 +22,13 @@ This is the authoritative checklist for QA review. Every item must be checked on
 | A-12 | Version follows semver | `version` matches pattern `^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?(\+[a-zA-Z0-9.]+)?$` | Actual version string |
 | A-13 | Description meaningful | `description` is not generic placeholder text (e.g., "A formation", "TODO", "Description here") | The placeholder text found |
 | A-14 | Namespace set | `namespace` is present, matches `^[a-z][a-z0-9-]*$`, and aligns with formation name | Missing or non-conforming namespace |
+| A-15 | A2A agents have sessions_send | Every agent that is a **key** in `agentToAgent` (sends messages) must have `sessions_send` in `tools.allow`. Without it, the topology edge is inert — the agent cannot actually message other agents at runtime. | Agent slug, missing tool |
+| A-16 | All agents have sessions_history | Every agent should have `sessions_history` in `tools.allow`. This is required for session recovery after daily resets and idle timeouts. | Agent slug missing sessions_history |
+| A-17 | Tool names are canonical | Tools in `tools.allow` must use canonical OpenClaw names: `web_search`, `web_fetch`, `read`, `write`, `edit`, `exec`, `sessions_send`, `sessions_spawn`, `sessions_list`, `sessions_history`. Old aliases (`web-search`, `file-read`, `file-write`, `bash`, `git-clone`) are DEFECTS. | Non-canonical tool name and agent slug |
 
 ---
 
-## B. SOUL.md Quality -- 10 items
+## B. SOUL.md Quality -- 12 items
 
 | # | Item | PASS criteria | Evidence to cite |
 |---|------|---------------|------------------|
@@ -39,6 +42,8 @@ This is the authoritative checklist for QA review. Every item must be checked on
 | B-08 | No AI-obvious language | Does not contain phrases like "I strive to", "I aim to", "delve", "leverage", "It's important to note" | Phrase and line number |
 | B-09 | Variable interpolation correct | `{{VAR}}` placeholders match declared variable names exactly (case-sensitive) | Mismatched variable reference |
 | B-10 | Personality distinct | Agent voice is distinguishable from other agents in the formation; not a generic template | Comparison showing similarity to another agent's SOUL.md |
+| B-11 | State persistence section present | SOUL.md includes a "State Persistence" section defining files in `knowledge/dynamic/` where the agent writes working state. Must specify what each file contains, when to write, and when to clear. Without this, agents lose all context on session reset. | Missing section or missing file definitions |
+| B-12 | Session history guidance present | SOUL.md includes a "Session History" section explaining that the agent has `sessions_history` for recovering context after session resets, and when to use it (recovery only, not routine). | Missing section |
 
 ---
 
@@ -113,10 +118,14 @@ A finding is a DEFECT if fixing it is **required for the formation to function c
 | `agentToAgent` references slug `monitor` but no agent `monitor` exists | Runtime will fail to route messages. |
 | `type: "shoal"` but 7 agents declared | Schema constraint violated. |
 | Variable `{{API_KEY}}` used in SOUL.md but not declared in `variables` | Interpolation will fail at deploy. |
-| Agent `builder` SOUL.md says it uses `shell` tool but `tools.allow` lists only `file-read` | Agent will be denied tool access at runtime. |
+| Agent `builder` SOUL.md says it uses `shell` tool but `tools.allow` lists only `read` | Agent will be denied tool access at runtime. |
 | IDENTITY.md missing for agent `qa` | Required file missing from agent directory. |
 | Cron expression `*/5 * * *` (4 fields) | Invalid cron -- will not parse. |
 | `sensitive: false` on a variable named `API_SECRET` that holds credentials | Security issue -- secret stored in plaintext. |
+| Agent `monitor` is a key in `agentToAgent` but lacks `sessions_send` in `tools.allow` | Topology edge is inert -- agent cannot actually send messages at runtime. |
+| Binding uses `{ "channel": "slack", "agent": "triage" }` instead of `{ "match": { ... } }` | Old binding format. Schema requires match objects. |
+| Agent uses `web-search` instead of `web_search` in `tools.allow` | Non-canonical tool name. Runtime will not recognize it. |
+| SOUL.md has no State Persistence section and no `knowledge/dynamic/` file definitions | Agent will lose all working context on session reset. |
 
 ### PREFERENCE -- noted, never blocks
 
