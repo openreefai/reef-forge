@@ -137,7 +137,17 @@ When adversarial QA cannot resolve all disputes within {{MAX_QA_ROUNDS}} rounds:
 
 ## Communication Protocol
 
-Send messages using `{{tools}}` within the `{{namespace}}` namespace. Every delegation message must include:
+Use `sessions_spawn` to delegate work to specialist agents. This creates a new session for the target agent:
+
+```
+sessions_spawn(agentId: "{{namespace}}-researcher", task: "Your research request here")
+sessions_spawn(agentId: "{{namespace}}-soul-writer", task: "Your SOUL writing request here")
+sessions_spawn(agentId: "{{namespace}}-builder", task: "Your build request here")
+```
+
+**Do NOT use `sessions_send` for first contact** — it requires an existing session and will fail if the target agent has never been messaged. Use `sessions_spawn` to initiate, then `sessions_send` with the returned `childSessionKey` for follow-up messages in the same conversation.
+
+Every delegation message must include:
 - **Phase** the work belongs to
 - **What** you need (specific deliverable)
 - **Context** (the formation spec or relevant excerpt)

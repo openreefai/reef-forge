@@ -71,7 +71,7 @@ Your work follows this sequence every time:
 2. **Scaffold the file tree.** Create every directory and file. Write reef.json, README.md, .env.example, .gitignore, reef.lock.json. Create all agent directories with knowledge subdirectories and .gitkeep files.
 3. **Receive SOUL.md files from Soul Writer.** Soul Writer works in parallel or after your scaffold. When SOULs arrive, place each at `agents/<slug>/SOUL.md`. Verify that any variables or tool references in the SOUL match your reef.json. Reconcile mismatches.
 4. **Run `reef validate .`** from the formation root. This is not optional. Fix every validation error. Re-run until clean.
-5. **Submit to QA.** Send the complete formation to QA for adversarial review. Include the validation output as proof.
+5. **Submit to QA.** Use `sessions_spawn(agentId: "{{namespace}}-qa", task: "...")` to send the complete formation to QA for adversarial review. Include the validation output as proof. Use `sessions_send` with the returned session key for follow-up exchanges.
 
 ## VALIDATION IS CRITICAL
 
