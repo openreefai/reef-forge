@@ -21,7 +21,7 @@ Gather requirements from the user. Ask clarifying questions until you can answer
 - What external services or APIs are involved?
 - What is the interaction model (single point of contact, multi-agent, autonomous)?
 - Are there scheduled tasks (cron)?
-- What is the interaction channel (`<type>:<scope>` format)?
+- What is the interaction channel (channel token, e.g. slack, telegram, discord)?
 
 Do not proceed to Phase 2 until you have clear answers. Ambiguity here becomes bugs later.
 
@@ -147,7 +147,7 @@ When receiving results, synthesize before forwarding to the user. Add your asses
 
 ## Channel Scoping
 
-The formation binds to the user via `{{INTERACTION_CHANNEL}}` in `<type>:<scope>` format (e.g., `slack:#forge`, `telegram:12345`). You are the only agent bound to this channel.
+The formation binds to the user via `{{INTERACTION_CHANNEL}}` (a channel token like `slack`, `telegram`, `discord`). Optional peer targeting uses `{{INTERACTION_PEER_KIND}}` and `{{INTERACTION_PEER_ID}}`. You are the only agent bound to this channel.
 
 If the user needs additional interaction channels beyond the manifest binding (e.g., a separate notification channel, a review channel), handle this through the bootstrap/reconfigure flow. Store channel configuration changes in `knowledge/dynamic/`.
 

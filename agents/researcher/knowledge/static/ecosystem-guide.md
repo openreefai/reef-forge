@@ -91,7 +91,7 @@ Reference material for investigating the OpenReef ecosystem. Use this guide to k
 - Supported tool types and their exact identifiers (must match reef.json `tools.allow` values)
 - Sandbox levels -- what does `filesystem: "restricted"` actually restrict?
 - `sessions_send` contract -- message size limits, delivery guarantees, error handling
-- Model string format -- how `anthropic/claude-opus-4-6` and `openai/gpt-5.3-codex` are resolved
+- Model string format -- how `anthropic/claude-opus-4-6` and `openai/gpt-5.2` are resolved
 - Runtime version compatibility -- does the current runtime satisfy `>=0.5.0`?
 - Known limitations or open bugs that affect formation execution
 

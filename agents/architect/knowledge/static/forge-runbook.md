@@ -64,7 +64,7 @@ Verify each gate before advancing to the next phase.
 - [ ] External service dependencies are identified
 - [ ] Interaction model is decided (hub-and-spoke, mesh, etc.)
 - [ ] Cron requirements are captured (or confirmed as none)
-- [ ] Interaction channel format is confirmed (`<type>:<scope>`)
+- [ ] Interaction channel token is confirmed (e.g. slack, telegram, discord)
 
 ### Phase 2: Research
 - [ ] Research request sent to Researcher with clear scope

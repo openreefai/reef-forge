@@ -15,21 +15,21 @@ reef-forge runs a six-phase build pipeline:
 5. **Review** -- QA (running on a different vendor model) performs adversarial review against a 48-item quality checklist and an ecosystem audit. Builder and QA iterate for up to `MAX_QA_ROUNDS` rounds until all defects are resolved or disputes are escalated.
 6. **Deliver** -- Architect presents the finished formation with a summary of what was built, how QA findings were resolved, and any ecosystem issues surfaced during QA.
 
-All output is reviewed by a human before anything is published. The formation uses a multi-vendor model strategy: four agents run on Anthropic models while the QA agent runs on OpenAI gpt-5.3-codex, ensuring the reviewer brings genuinely independent judgment rather than shared model biases.
+All output is reviewed by a human before anything is published. The formation uses a multi-vendor model strategy: four agents run on Anthropic models while the QA agent runs on OpenAI gpt-5.2, ensuring the reviewer brings genuinely independent judgment rather than shared model biases.
 
 ## Requirements
 
 - [OpenClaw](https://github.com/openclaw/openclaw) >= 0.5.0 installed and running
 - [OpenReef CLI](https://github.com/openreefai/openreef) >= 0.9.0 installed
 - Anthropic API key (for Architect, Researcher, Soul Writer, Builder)
-- OpenAI API key (for QA agent -- gpt-5.3-codex)
+- OpenAI API key (for QA agent -- gpt-5.2)
 - GitHub access token (optional -- for private repo cloning or to avoid rate limits)
 
 ## Variables
 
 | Variable | Type | Default | Required | Description |
 |----------|------|---------|----------|-------------|
-| `INTERACTION_CHANNEL` | string | - | yes | Primary contact channel in `<type>:<scope>` form (e.g. `slack:#forge`, `telegram:12345`, `teams:ops-room`) |
+| `INTERACTION_CHANNEL` | string | - | yes | Channel token for the primary contact channel (e.g. `slack`, `telegram`, `discord`, `teams`) |
 | `OPENREEF_REPO_URL` | string | `https://github.com/openreefai/openreef` | no | URL of the openreef repository for Researcher and QA to clone |
 | `TIDE_REPO_URL` | string | `https://github.com/openreefai/tide` | no | URL of the tide registry repository for Researcher and QA to clone |
 | `OPENCLAW_REPO_URL` | string | `https://github.com/openclaw/openclaw` | no | URL of the openclaw runtime repository for Researcher and QA to clone |
@@ -78,7 +78,7 @@ Scaffolds complete formation file trees from the Architect's spec. The Builder a
 
 ### QA
 
-**Model:** `openai/gpt-5.3-codex` | **Role:** Reviewer
+**Model:** `openai/gpt-5.2` | **Role:** Reviewer
 
 Adversarial reviewer running on a different vendor model (OpenAI instead of Anthropic) to provide cognitive diversity and independent judgment. QA reviews every formation against a 48-item quality checklist spanning seven categories: manifest compliance (14 items), SOUL.md quality (10 items), IDENTITY.md completeness (3 items), knowledge files (4 items), README structure (9 items), file structure (4 items), and ecosystem compatibility (4 items). Every finding is classified as either a blocking defect or a non-blocking preference. QA also clones ecosystem repos read-only to verify schema compatibility, runtime support, and upcoming breaking changes.
 
@@ -178,7 +178,7 @@ You review the deliverables and deploy the new formation with `reef install`.
 
 ## Adversarial QA Protocol
 
-QA runs on a different vendor model (OpenAI gpt-5.3-codex) for cognitive diversity -- a second opinion from a fundamentally different system.
+QA runs on a different vendor model (OpenAI gpt-5.2) for cognitive diversity -- a second opinion from a fundamentally different system.
 
 The review uses a 48-item quality checklist across seven categories:
 
@@ -202,7 +202,7 @@ Rounds alternate between QA and Builder up to `MAX_QA_ROUNDS` (default: 4). If d
 |---------|-------|
 | `{{INTERACTION_CHANNEL}}` | architect |
 
-The binding is user-configurable via the `INTERACTION_CHANNEL` variable, which must be set in `<type>:<scope>` format where `type` is the platform (slack, telegram, teams, discord) and `scope` is the target (channel name, chat ID, room name). Examples: `slack:#forge`, `telegram:12345`, `teams:ops-room`.
+The binding is user-configurable via the `INTERACTION_CHANNEL` variable, which is the channel token (e.g. `slack`, `telegram`, `discord`, `teams`). Optional peer targeting can be configured with `INTERACTION_PEER_KIND` and `INTERACTION_PEER_ID` variables.
 
 This single binding routes to the Architect, the only agent the user interacts with directly. All delegation and coordination happens behind the scenes. The four specialist agents have no external channel bindings -- they communicate exclusively through the inter-agent topology.
 

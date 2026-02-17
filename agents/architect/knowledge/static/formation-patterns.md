@@ -203,7 +203,7 @@ A formation README should follow this order. Every section is required unless ma
 7. **Topology** -- ASCII diagram plus explicit edge table (From/To)
 8. **Cron Schedule** -- Table with Agent, Schedule, Description columns. Note the timezone.
 9. **How It Works** *(optional for solo formations)* -- Detailed walkthrough of each workflow loop
-10. **Channel Bindings** -- Table of channel-to-agent mappings. Explain the `<type>:<scope>` format.
+10. **Channel Bindings** -- Table of channel-to-agent mappings. Explain the match object format and channel tokens.
 11. **Teardown** -- Uninstall command plus warnings about dynamic data loss. List workspace paths.
 
 ---
@@ -229,19 +229,23 @@ Bindings where the channel is set by the user via a variable. Used for the prima
 
 - The channel value is a `{{VARIABLE}}` reference resolved at deploy time.
 - The variable must be defined in the `variables` section of reef.json.
-- Always use `<type>:<scope>` format for interaction channels: `slack:#channel`, `telegram:12345`, `teams:room-name`, `discord:#channel`.
+- Use channel tokens for interaction channels: `slack`, `telegram`, `teams`, `discord`.
+- Use match objects with optional peer targeting for specific destinations.
 
-### Channel Format: `<type>:<scope>`
-- **type** -- The platform or protocol: `slack`, `telegram`, `teams`, `discord`, `email`, `webhook`
-- **scope** -- The specific destination on that platform: a channel name, chat ID, room name, email address, or webhook URL
-- The colon is the delimiter. Types and scopes must not contain colons.
+### Binding Format
 
-### Bare Channel Shadows
-When a binding uses a bare channel name (no `<type>:<scope>` format), it creates an implicit shadow channel that is platform-agnostic. This is useful for internal agent-to-agent bindings but should never be used for user-facing interaction channels.
+Bindings use a match object with a required `channel` token and optional fields:
 
 ```json
-{ "channel": "build-status", "agent": "builder" }
+{ "match": { "channel": "slack", "peer": { "kind": "channel", "id": "#ops" } }, "agent": "architect" }
 ```
+
+- **channel** -- The platform token: `slack`, `telegram`, `teams`, `discord`
+- **peer.kind** -- Target type: `direct`, `group`, `channel`
+- **peer.id** -- Target identifier: channel name, chat ID, room name
+- **accountId**, **guildId**, **teamId**, **roles** -- Additional routing fields
+
+Use `{{VARIABLE}}` interpolation for user-configurable values. Channel token goes in `INTERACTION_CHANNEL`, peer targeting in `INTERACTION_PEER_KIND` and `INTERACTION_PEER_ID`.
 
 This binds to an internal channel named `build-status` that exists only within the formation's runtime. It is not routable from any external platform. Use bare channels only for internal coordination that the user never needs to see.
 

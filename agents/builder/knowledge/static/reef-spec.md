@@ -198,17 +198,17 @@ Channel routing rules that connect external communication channels to agents.
 
 ### Channel Format Convention
 
-Channels follow `<type>:<scope>` format:
+Bindings use match objects with a required `channel` token and optional peer targeting:
 
-- **type** -- The platform or protocol: `slack`, `telegram`, `teams`, `discord`, `email`, `webhook`, `sms`.
-- **scope** -- The specific target: channel name, chat ID, room name, email address, endpoint path.
+- **channel** -- The platform token: `slack`, `telegram`, `teams`, `discord`
+- **peer.kind** -- Target type: `direct`, `group`, `channel`
+- **peer.id** -- Target identifier: channel name, chat ID, room name
+- **accountId**, **guildId**, **teamId**, **roles** -- Additional routing fields
 
 Examples:
-- `slack:#general` -- Slack channel #general
-- `telegram:12345` -- Telegram chat ID
-- `teams:ops-room` -- Microsoft Teams room
-- `email:inbox` -- Email inbox (functional)
-- `webhook:/deploy` -- Webhook endpoint (functional)
+- `{ "match": { "channel": "slack" }, "agent": "triage" }` -- Any Slack message
+- `{ "match": { "channel": "slack", "peer": { "kind": "channel", "id": "#general" } }, "agent": "triage" }` -- Slack #general
+- `{ "match": { "channel": "telegram", "peer": { "kind": "direct", "id": "12345" } }, "agent": "support" }` -- Telegram DM
 
 ### Interaction vs. Functional Channels
 

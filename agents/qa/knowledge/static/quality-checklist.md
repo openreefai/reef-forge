@@ -13,7 +13,7 @@ This is the authoritative checklist for QA review. Every item must be checked on
 | A-03 | Type correct for agent count | `solo`=1 agent, `shoal`=2-5 agents, `school`=6+ agents | Actual agent count vs. declared type |
 | A-04 | Topology valid | Every slug in `agentToAgent` values exists as a key in `agents` | Broken slug reference |
 | A-05 | Variable declarations complete | Every `{{VAR}}` used anywhere in the formation files is declared in `variables` | File path, line, and undeclared variable name |
-| A-06 | Bindings format correct | Each binding `channel` uses `<type>:<scope>` pattern or `{{VARIABLE}}` interpolation | Malformed binding value |
+| A-06 | Bindings format correct | Each binding uses a match object with a `channel` token or `{{VARIABLE}}` interpolation | Malformed binding value |
 | A-07 | Cron expressions valid | Every `schedule` value is a valid 5-field cron expression | Invalid expression and what is wrong with it |
 | A-08 | Dependencies declared | Every external service the formation requires is listed in `dependencies.services` | Undeclared service (e.g., model provider not listed) |
 | A-09 | Validation config present | `validation` object exists with at least `agent_exists` and `file_exists` | Missing validation object or fields |

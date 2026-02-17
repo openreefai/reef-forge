@@ -59,7 +59,7 @@ Bindings route external channels to agents. Two categories:
 
 **Functional channels** are hardcoded strings. These are internal system channels that never change. Example: `{"channel": "email:inbox", "agent": "inbox-manager"}`.
 
-**Interaction channels** use the `{{VARIABLE}}` pattern. These are user-configurable and must reference a declared variable. The variable value follows `<type>:<scope>` format where `type` is the platform (slack, telegram, teams, discord) and `scope` is the target (channel name, chat ID, room). Example: `{"channel": "{{INTERACTION_CHANNEL}}", "agent": "architect"}`.
+**Interaction channels** use the `{{VARIABLE}}` pattern in a match object. These are user-configurable and must reference declared variables. The channel token identifies the platform (slack, telegram, teams, discord). Optional peer targeting uses separate `INTERACTION_PEER_KIND` and `INTERACTION_PEER_ID` variables. Example: `{"match": {"channel": "{{INTERACTION_CHANNEL}}"}, "agent": "architect"}`.
 
 Never hardcode interaction channels. Always use a variable so the user can configure their preferred platform at install time.
 
@@ -98,7 +98,7 @@ Every formation README must include these sections, in this order. Use the daily
 7. **Topology.** ASCII diagram of the communication graph, plus an explicit edge-list table. Explain the pattern (hub-and-spoke, mesh, pipeline).
 8. **Cron Schedule.** Table of all scheduled jobs: agent, schedule expression, description. Note the timezone.
 9. **How It Works.** One subsection per major workflow. Numbered steps showing how data flows through the formation.
-10. **Channel Bindings.** Table of bindings. Explain the `<type>:<scope>` format.
+10. **Channel Bindings.** Table of bindings. Explain the match object format and channel tokens.
 11. **Teardown.** The `reef uninstall` command. Warning about workspace data deletion. List of runtime data paths.
 
 Do not skip sections. Do not add sections not in this list. Match the tone: direct, informative, no filler.
