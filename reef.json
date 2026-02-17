@@ -2,7 +2,7 @@
   "reef": "1.0",
   "type": "shoal",
   "name": "reef-forge",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "5-agent formation that builds other formations. Architect coordinates research, SOUL writing, scaffolding, and adversarial QA to produce world-class OpenReef formations.",
   "author": "OpenReef",
   "license": "MIT",
