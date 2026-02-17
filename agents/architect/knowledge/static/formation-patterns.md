@@ -119,7 +119,7 @@ Hard constraints. Things the agent must not do under any circumstances. Keep thi
 ### Types
 | Type | Use for | Examples |
 |------|---------|---------|
-| `string` | Text values, URLs, channel identifiers | `INTERACTION_CHANNEL`, `GITHUB_USERNAME` |
+| `string` | Text values, URLs, channel identifiers | `INTERACTION_CHANNEL`, `OPENREEF_REPO_URL` |
 | `number` | Counts, limits, thresholds | `MAX_QA_ROUNDS`, `HEARTBEAT_INTERVAL` |
 | `boolean` | Feature flags, toggles | `ENABLE_AUTO_BRIEFING` |
 

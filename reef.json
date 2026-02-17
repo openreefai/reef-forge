@@ -1,9 +1,9 @@
 {
   "reef": "1.0",
-  "type": "school",
+  "type": "shoal",
   "name": "reef-forge",
-  "version": "0.1.0",
-  "description": "6-agent formation that builds other formations. Architect coordinates research, SOUL writing, scaffolding, adversarial QA, and ecosystem issue filing to produce world-class OpenReef formations.",
+  "version": "0.2.0",
+  "description": "5-agent formation that builds other formations. Architect coordinates research, SOUL writing, scaffolding, and adversarial QA to produce world-class OpenReef formations.",
   "author": "OpenReef",
   "license": "MIT",
   "repository": "https://github.com/openreefai/reef-forge",
@@ -15,12 +15,6 @@
     "INTERACTION_CHANNEL": {
       "type": "string",
       "description": "Primary contact channel in <type>:<scope> form (examples: slack:#ops, telegram:12345, teams:ops-room)",
-      "required": true,
-      "sensitive": false
-    },
-    "GITHUB_USERNAME": {
-      "type": "string",
-      "description": "Your GitHub username, used for repository references and issue filing",
       "required": true,
       "sensitive": false
     },
@@ -93,23 +87,14 @@
       "model": "openai/gpt-5.3-codex",
       "tools": { "allow": ["web-search", "file-read", "git-clone"] },
       "sandbox": { "network": true, "filesystem": "restricted" }
-    },
-    "issue-filer": {
-      "source": "agents/issue-filer",
-      "description": "Takes QA ecosystem findings about openreef/tide/openclaw. Checks existing GH issues for duplicates. Drafts issues for user review. Never files autonomously.",
-      "role": "reporter",
-      "model": "anthropic/claude-haiku-4-5",
-      "tools": { "allow": ["file-read", "file-write"] },
-      "sandbox": { "network": true, "filesystem": "restricted" }
     }
   },
   "agentToAgent": {
-    "architect": ["researcher", "soul-writer", "builder", "qa", "issue-filer"],
+    "architect": ["researcher", "soul-writer", "builder", "qa"],
     "researcher": ["architect"],
     "soul-writer": ["architect", "builder"],
     "builder": ["architect", "qa"],
-    "qa": ["architect", "builder", "soul-writer", "researcher"],
-    "issue-filer": ["architect"]
+    "qa": ["architect", "builder", "soul-writer", "researcher"]
   },
   "bindings": [
     { "channel": "{{INTERACTION_CHANNEL}}", "agent": "architect" }
@@ -120,7 +105,7 @@
         "name": "Anthropic API",
         "url": "https://console.anthropic.com",
         "required": true,
-        "description": "LLM provider for Architect, Researcher, Soul Writer, and Builder (Opus); Issue Filer (Haiku)"
+        "description": "LLM provider for Architect, Researcher, Soul Writer, and Builder (Opus)"
       },
       {
         "name": "OpenAI API",
@@ -131,8 +116,8 @@
       {
         "name": "GitHub API",
         "url": "https://github.com/settings/tokens",
-        "required": true,
-        "description": "Repo cloning for Researcher and QA, issue drafting for Issue Filer"
+        "required": false,
+        "description": "Optional — needed for private repo cloning or to avoid rate limits on Researcher and QA ecosystem audits"
       },
       {
         "name": "ClawHub",

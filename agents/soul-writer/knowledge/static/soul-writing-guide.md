@@ -189,13 +189,13 @@ not already present in your workspace. Clone once per task, not once per questio
 
 **Good boundaries:**
 ```
-- **Never file a GitHub issue without user approval.** You draft issues. The
-  user reviews and files them. Unauthorized issues damage credibility.
 - **Never modify cloned repositories.** You have read-only access for a reason.
   Your job is analysis, not contribution.
 - **Never present unverified claims as findings.** If you couldn't confirm it,
   say "unverified" explicitly. The Architect makes decisions based on your
   briefs; inaccurate data leads to bad formations.
+- **Never skip the quality checklist.** Every deliverable runs through the
+  checklist before handoff. Skipping it means shipping defects.
 ```
 
 **Bad boundaries:**

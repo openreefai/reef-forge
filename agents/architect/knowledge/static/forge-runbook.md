@@ -11,15 +11,15 @@ Quick-reference card for the Architect agent.
               user ────▶ │  architect  │ ◀──── {{INTERACTION_CHANNEL}}
                          └──┬──┬──┬──┬┘
                             │  │  │  │
-          ┌─────────────────┘  │  │  └─────────────────┐
-          ▼                    │  │                     ▼
-  ┌──────────────┐             │  │            ┌──────────────┐
-  │  researcher  │             │  │            │ issue-filer  │
-  │ (research)   │             │  │            │  (drafts)    │
-  └──────┬───────┘             │  │            └──────┬───────┘
-         │ brief               │  │                   │ drafts
-         └──────────┐          │  │          ┌────────┘
-                    ▼          │  │          ▼
+          ┌─────────────────┘  │  │
+          ▼                    │  │
+  ┌──────────────┐             │  │
+  │  researcher  │             │  │
+  │ (research)   │             │  │
+  └──────┬───────┘             │  │
+         │ brief               │  │
+         └──────────┐          │  │
+                    ▼          │  │
                 ┌──────────────┘  └──────────────┐
                 ▼                                ▼
         ┌──────────────┐                ┌──────────────┐
@@ -31,7 +31,7 @@ Quick-reference card for the Architect agent.
                 ▼
         ┌──────────────┐
         │      qa      │ ──findings──▶ builder (round-trip)
-        │ (adversarial)│ ──ecosystem──▶ architect ──▶ issue-filer
+        │ (adversarial)│ ──ecosystem──▶ architect
         └──────────────┘
 ```
 
@@ -40,7 +40,6 @@ Quick-reference card for the Architect agent.
 - `architect → soul-writer` -- approved spec for SOUL/IDENTITY/knowledge authoring
 - `architect → builder` -- approved spec + SOUL artifacts for scaffolding
 - `architect → qa` -- (indirect: builder submits to QA after scaffolding)
-- `architect → issue-filer` -- ecosystem findings from QA for draft issue creation
 - `researcher → architect` -- completed research briefs
 - `soul-writer → architect` -- completed SOUL artifacts
 - `soul-writer → builder` -- SOUL artifacts for integration into file tree
@@ -50,8 +49,6 @@ Quick-reference card for the Architect agent.
 - `qa → builder` -- findings reports for each review round
 - `qa → soul-writer` -- SOUL-specific revision requests
 - `qa → researcher` -- requests for clarification on ecosystem constraints
-- `issue-filer → architect` -- drafted issues for user approval
-
 No agent other than Architect communicates with the user.
 
 ---
@@ -98,14 +95,13 @@ Verify each gate before advancing to the next phase.
 - [ ] QA produced initial findings report
 - [ ] Builder responded to all findings
 - [ ] Rounds tracked (current round / {{MAX_QA_ROUNDS}})
-- [ ] Ecosystem issues (if any) routed to Issue Filer
+- [ ] Ecosystem issues (if any) noted for delivery summary
 - [ ] All issues resolved, OR escalation report produced
-- [ ] Issue Filer drafts (if any) ready for user review
 
 ### Phase 6: Deliver
 - [ ] Final formation presented to user
 - [ ] QA resolution summary included
-- [ ] Ecosystem issue drafts included (pending approval)
+- [ ] Ecosystem issues included (for user awareness)
 - [ ] Installation instructions provided
 - [ ] User confirmed receipt
 
@@ -182,25 +178,6 @@ Complete formation file tree:
 Submit to QA when complete.
 ```
 
-### To Issue Filer
-
-```
-## Issue Draft Request
-
-- **Phase:** 5 - Review
-- **Source:** QA finding #{n}
-- **Repository:** {openreef | tide | openclaw}
-
-### Finding
-{QA's description of the ecosystem issue}
-
-### Evidence
-{Specific file paths, version numbers, reproduction steps}
-
-### Deliverable
-Draft GitHub issue for user review. Check for existing duplicates first.
-```
-
 ---
 
 ## Escalation Report Template
@@ -235,7 +212,7 @@ Draft GitHub issue for user review. Check for existing duplicates first.
 | Type | Agents | Use When |
 |------|--------|----------|
 | **solo** | 1 | Single-purpose agent, no coordination needed. Examples: a standalone research bot, a single-channel notifier. |
-| **shoal** | 2-3 | Small collaboration. Agents share a task but the topology is simple. Examples: a writer + editor pair, a monitor + responder pair. |
-| **school** | 4+ | Complex coordination. Multiple specialists with a coordinator hub. Examples: daily-ops (5 agents), reef-forge (6 agents). Requires explicit topology design. |
+| **shoal** | 2-5 | Small to mid-size collaboration. Agents share tasks with moderate topology. Examples: a writer + editor pair, daily-ops (5 agents), reef-forge (5 agents). |
+| **school** | 6+ | Complex coordination. Many specialists with a coordinator hub. Requires explicit topology design. |
 
 **Choosing a type:** Start with the simplest type that solves the problem. If the user describes a single task, it is probably solo. If they describe two complementary roles, it is probably shoal. If they describe a workflow with delegation, review, or multiple autonomous loops, it is school.
