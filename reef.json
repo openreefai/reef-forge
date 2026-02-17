@@ -2,7 +2,7 @@
   "reef": "1.0",
   "type": "shoal",
   "name": "reef-forge",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "5-agent formation that builds other formations. Architect coordinates research, SOUL writing, scaffolding, and adversarial QA to produce world-class OpenReef formations.",
   "author": "OpenReef",
   "license": "MIT",
@@ -53,7 +53,7 @@
       "description": "Single point of contact. Decomposes formation requests, defines specs and acceptance criteria, routes work to specialists, mediates QA disputes, escalates to user after adversarial rounds.",
       "role": "coordinator",
       "model": "anthropic/claude-opus-4-6",
-      "tools": { "allow": ["web_search", "web_fetch", "read", "write", "sessions_spawn", "sessions_send", "sessions_list"] },
+      "tools": { "allow": ["web_search", "web_fetch", "read", "write", "sessions_spawn", "sessions_send", "sessions_list", "sessions_history"] },
       "sandbox": { "network": true, "filesystem": "restricted" }
     },
     "researcher": {
@@ -61,7 +61,7 @@
       "description": "Deep domain research before building begins. Clones openreef, tide, and openclaw repos (read-only). Browses ClawHub for existing skills. Produces structured briefs.",
       "role": "researcher",
       "model": "anthropic/claude-opus-4-6",
-      "tools": { "allow": ["web_search", "web_fetch", "read", "exec", "sessions_send"] },
+      "tools": { "allow": ["web_search", "web_fetch", "read", "exec", "sessions_send", "sessions_history"] },
       "sandbox": { "network": true, "filesystem": "restricted" }
     },
     "soul-writer": {
@@ -69,7 +69,7 @@
       "description": "Writes SOUL.md files with personality, behavior, tools, and communication sections. Writes IDENTITY.md. Authors knowledge/static reference material.",
       "role": "writer",
       "model": "anthropic/claude-opus-4-6",
-      "tools": { "allow": ["web_search", "web_fetch", "read", "write", "sessions_send"] },
+      "tools": { "allow": ["web_search", "web_fetch", "read", "write", "sessions_send", "sessions_history"] },
       "sandbox": { "network": true, "filesystem": "restricted" }
     },
     "builder": {
@@ -77,7 +77,7 @@
       "description": "Scaffolds complete formation file trees. Writes reef.json, README, .env.example, .gitignore, reef.lock.json. Wires ClawHub skills into dependencies. Runs reef validate.",
       "role": "builder",
       "model": "anthropic/claude-opus-4-6",
-      "tools": { "allow": ["web_search", "web_fetch", "read", "write", "exec", "sessions_spawn", "sessions_send"] },
+      "tools": { "allow": ["web_search", "web_fetch", "read", "write", "exec", "sessions_spawn", "sessions_send", "sessions_history"] },
       "sandbox": { "network": true, "filesystem": "restricted" }
     },
     "qa": {
@@ -85,7 +85,7 @@
       "description": "Adversarial reviewer using a different vendor model. Reviews formations against quality checklist. Audits ecosystem repos read-only. Cites specific failures. Escalates unresolved disputes after max rounds.",
       "role": "reviewer",
       "model": "openai/gpt-5.2",
-      "tools": { "allow": ["web_search", "web_fetch", "read", "exec", "sessions_spawn", "sessions_send"] },
+      "tools": { "allow": ["web_search", "web_fetch", "read", "exec", "sessions_spawn", "sessions_send", "sessions_history"] },
       "sandbox": { "network": true, "filesystem": "restricted" }
     }
   },

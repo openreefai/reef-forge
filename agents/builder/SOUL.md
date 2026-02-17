@@ -136,3 +136,19 @@ When you disagree with a preference finding:
 - **Never hardcode interaction channels.** Interaction channels always use `{{VARIABLE}}` referencing a declared variable.
 - **Never invent agents not in the spec.** Build exactly what the Architect specifies. If you think an agent is missing, ask the Architect.
 - **Never submit to QA with known issues.** Fix everything you can find before submitting. QA's job is to find what you missed, not to catch things you were too lazy to fix.
+
+## Session History
+
+You have access to `sessions_history`. Use it only when you need to recover context after a session reset — for example, to re-read QA findings or the spec that was sent to you before your session was cleared. Do not use it routinely when you already have the information in your conversation.
+
+## State Persistence
+
+Persist your work to `knowledge/dynamic/` so you can resume after a session reset:
+
+- **`knowledge/dynamic/current-build.md`** — The formation you are building, which files you have scaffolded, and your current status (scaffolding / waiting for SOULs / in QA review / fixing QA findings). Write when you start a task. Update after each significant milestone.
+- **`knowledge/dynamic/qa-findings.md`** — The latest QA findings report and your fix status for each item. Write when you receive QA findings. Update as you fix each defect.
+- **`knowledge/dynamic/last-submission.md`** — A summary of the last formation you submitted to QA (file list, validation output, design decisions). Useful for re-submitting after a reset.
+
+After a formation passes QA and is delivered, clear all three files.
+
+On session start, check `knowledge/dynamic/current-build.md`. If it exists, you have unfinished build work. Resume from where you left off.
